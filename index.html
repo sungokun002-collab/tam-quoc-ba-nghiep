@@ -2,7 +2,7 @@
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tam Quốc Chí: Bá Nghiệp</title>
-<!-- v11 27/11/2026: anh con khop gioi tinh — KIDAVM 54 anh nam / KIDAVF 46 anh nu (phan loai bang mat tu kidav/kid_000..099.jpg), av() dung kidPh(i) theo S.kids[i].w; con da sinh tu doi anh theo gioi tinh, khong can chuyen doi save; ma mo khoa Acc Full KHONG ghi trong file nay -->
+<!-- v12 27/11/2026: skill chu dong hoi theo hiep trong tran — cdn tren don vi tran (u.cdn), dung xong cho dung skill.cd hiep (S:4 A:3 B:2 C:2 D:1, tru cay KN, than hoa +2); dau tran san sang; auto (B.auto) tu xa khi san sang; nut skill refresh moi hiep trong arena; S.cd khong con dung cho skill -->
 <style>
 :root{--bg:#eee8dc;--fg:#231c14;--card:#faf6ee;--ln:#cfc4ae;--ac:#8e2b25;--ok:#3f7d4e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17130f;--fg:#ece4d4;--card:#241e17;--ln:#40362a;--ac:#d4574d;--ok:#6dbb80}}
@@ -189,7 +189,7 @@ function kidPh(i){const L=FEM(i)?KIDAVF:KIDAVM;return KIDAV[L[(i-1001)%L.length]
 function av(i,z){const n=GN(i),T=tl(i),ph=i>=1000?kidPh(i):PH[n];
  return '<span class="av3 fr f'+T+(S.gd&&S.gd[i]&&S.own[i]>=100?' gd':'')+'" data-g="'+i+'" style="width:'+z*.75+'px;height:'+z+'px">'+(ph?'<i class="ph" style="background-image:url('+ph+')"></i>':svgFace(i))+'<b class="tb">'+T+(S.gd&&S.gd[i]&&S.own[i]>=100?'✦':'')+'</b></span>'}
 function tix(){const now=Date.now(),n=Math.floor((now-S.tt)/150000);if(n>0){S.tk=Math.min(6,S.tk+n);S.tt=S.tk>=6?now:S.tt+n*150000}else if(S.tk>=6)S.tt=now}
-function mkP(full,ids){ids=ids||S.team;const bn=bonds(ids);return ids.map((i,k)=>{const o=stat(i,S.own[i],bn[i]),H=o.h;return{...o,i,k:'p'+k,H,h:full?H:Math.max(1,S.hp[i]*H),sk:skill(i),q:0,sn:0,gd:H*(o.sh||0),sb:subs(i).slice(0,nsub(S.own[i])).map(b=>{const[p,v]=pf(i,b,S.own[i]);return{...b,p:Math.min(.8,p*(1+(o.pr||0))),v}})}})}
+function mkP(full,ids){ids=ids||S.team;const bn=bonds(ids);return ids.map((i,k)=>{const o=stat(i,S.own[i],bn[i]),H=o.h;return{...o,i,k:'p'+k,H,h:full?H:Math.max(1,S.hp[i]*H),sk:skill(i),q:0,cdn:0,sn:0,gd:H*(o.sh||0),sb:subs(i).slice(0,nsub(S.own[i])).map(b=>{const[p,v]=pf(i,b,S.own[i]);return{...b,p:Math.min(.8,p*(1+(o.pr||0))),v}})}})}
 function mkd(k,fl){const m=1.2*(1+.12*fl)*CF(S.max)*(k==4?2.2:1),el=fl%5==0,n=3+(el?1:0),en=[];
  for(let q=0;q<n;q++){const H=90*m*(el?1.4:1);en.push({k:'e'+q,h:H,H,a:11*m*(el?1.2:1),sn:0,ph:pickPh(k+20,fl,q),fg:{hu:[30,150,40,260,190,330][k]+q*25,w:q%4,hm:3,eye:'#ff5a3c',cape:0,sat:30}})}
  const ids=enemyIds(20+k,fl,'g',en.length),bnd=bonds(ids);en.forEach((e,q)=>makeGen(e,ids[q],m*(el?1.4:1),'n',bnd[ids[q]],S.max,Math.min(30,fl*2)));
@@ -291,7 +291,7 @@ function autoStep(){const o=S.opts,hp=S.team.reduce((a,i)=>a+S.hp[i],0)/S.team.l
  if(o.includes('b'))t='b';else if(hp<.5&&o.includes('h'))t='h';else t=({g:['g','e','n','h'],e:['e','g','n','h'],n:['n','g','e','h']})[S.ap||'g'].find(x=>o.includes(x));
  const w='Ải '+S.ch+'-'+S.st+' · ';let m;
  if(t=='h'){S.team.forEach(i=>S.hp[i]=Math.min(1,S.hp[i]+.5));m='🍶 Hồi máu';adv()}
- else{const B=mk(t);if(t!='n')B.P.forEach(u=>{if(!((S.cd[u.i]||0)>0)){u.q=1;S.cd[u.i]=u.sk.cd+1}});let g=0;while(!B.over&&g++<80)round(B,[]);const r=resolve(B);m=(r.w?'✅ ':'❌ ')+LB[t][0]+' · '+r.m.slice(0,110);if(r.w)adv()}
+ else{const B=mk(t);B.auto=1;let g=0;while(!B.over&&g++<80)round(B,[]);const r=resolve(B);m=(r.w?'✅ ':'❌ ')+LB[t][0]+' · '+r.m.slice(0,110);if(r.w)adv()}
  S.alog.push(w+m);if(S.alog.length>12)S.alog.shift();S.msg=m}
 function advance(d){const f=d>30?.5:1;d=Math.min(d,28800);tick(d*f);tqCheck();mapTick(d*f);let ran=0;
  if(S.auto&&!AR){S.aacc=(S.aacc||0)+d*f;let n=0;while(S.aacc>=5&&n++<150){autoStep();S.aacc-=5;ran=1}if(n>=150)S.aacc=0}
@@ -360,7 +360,7 @@ function optCard(t,rec){const o=OP[t],s=S.st,bi=s==10?0:s==20?1:2;
 const det=(t,h)=>'<details class="card"><summary><b>'+t+'</b></summary>'+h.replace('<div class="card">','<div>')+'</details>';
 function mapTab(){const f=FA[S.f],C=CH[S.ch-1],s=S.st,nb=Math.min(30,Math.ceil(s/10)*10),[rt,why]=recOpt();
  return '<div class="card hero"><b>📍 Màn '+S.ch+': '+C[0]+'</b><br><span class="stg">Ải '+s+' / 30</span>'+bar(s/30)+'<small>'+(s==1?C[3]+f.r+' xuất quân. ':'')+'Thủ lĩnh kế tiếp ở ải '+nb+': '+BO[S.ch-1][nb==10?0:nb==20?1:2].n+'.</small>'+(S.msg?'<div class="res">'+S.msg+'</div>':'')+'<div class="tip">💡 '+why+'</div></div>'
- +'<div class="card"><b>Đội hình</b> <small>(chạm avatar để xem chi tiết)</small><div class="tstrip">'+S.team.map(i=>{const r=S.cd[i]||0;return '<div class="ts">'+av(i,58)+'<small>'+GN(i)+'</small>'+bar(S.hp[i])+'<small>'+(r>0?'⏳ chiêu '+r+' ải':'✅ có chiêu')+'</small></div>'}).join('')+'</div></div>'
+ +'<div class="card"><b>Đội hình</b> <small>(chạm avatar để xem chi tiết)</small><div class="tstrip">'+S.team.map(i=>{const k=skill(i);return '<div class="ts">'+av(i,58)+'<small>'+GN(i)+'</small>'+bar(S.hp[i])+'<small>✅ chiêu hồi '+k.cd+' hiệp</small></div>'}).join('')+'</div></div>'
  +'<h3>Chọn hướng đi cho ải này</h3>'+S.opts.map(t=>optCard(t,t==rt)).join('')
  +det('❓ Cách chơi (xem nhanh)','<div class="card"><small>1. Mỗi ải chọn một thẻ ở trên rồi bấm nút lớn. Thẻ có ⭐ là gợi ý của game.<br>2. Trong trận tướng tự đánh. Bấm tên chiêu ở cuối màn hình để dùng kỹ năng mạnh.<br>3. Máu được giữ qua các ải: dưới 50% hãy chọn 🍶 Hồi máu.<br>4. Thua không mất tướng, chỉ quay về ải 1 của màn.<br>5. Dùng vàng lên cấp tướng (chạm avatar → Lên cấp).<br>6. Khi rảnh: Nội chính, Hầm ngục, hoặc bật 🤖 Tự động hành quân.</small><br><button class="g sm" onclick="showTut(0)">Xem lại hướng dẫn</button></div>')
  +det('🤖 Tự động hành quân',autoCard())+det('🔗 Nội tại kết hợp của đội',bondCard())}
@@ -415,7 +415,7 @@ function warAtk(pid){geo();const st=S.mp.p[pid];if(st.o==S.f||!PADJ[pid].some(j=
   else S.mp.msg='❌ Thất bại ở ải '+(k+1)+'/5 của '+PRV[pid].n+', mất '+cost+' 🌾. Tiến độ các ải đã qua vẫn giữ.';save();draw()})}
 function lose(i,a,why){const P=S.mp.p;if(PRV.filter((_,k)=>P[k].o==S.f).length<=1){mlog('⚠️ '+PRV[i].n+' suýt thất thủ ('+why+') nhưng là đất cuối cùng nên còn giữ được.');return}P[i].o=a==3?-1:a;P[i].gar=[];P[i].acc=0;P[i].ag=0;P[i].cl=0;mlog('💥 '+PRV[i].n+' thất thủ ('+why+'), rơi vào tay '+FN[a]+'.')}
 function raid(i,a){const st=S.mp.p[i],gar=st.gar.filter(g=>g in S.own);if(!gar.length){if(Math.random()<.5)return lose(i,a,'không có quân đồn trú');st.acc=0;st.ag=0;return mlog('🔥 '+PRV[i].n+' bị '+FN[a]+' cướp phá, mất hết sản vật đã tích lũy (không có quân đồn trú).')}
- const c=Math.max(1,S.max),s=20,m=(1.02+.072*s)*(1+.28*(c-1))*WB/(1+.12*(st.lv-1)),E=mkEn(provIds(i,3,a),m,c,s),B={t:'w',en:E.en,P:mkP(1,gar),rd:0,over:0,c:1,notes:[],dg:1,cdl:{}};B.P.forEach(u=>u.q=1);let g=0;while(!B.over&&g++<80)round(B,[]);
+ const c=Math.max(1,S.max),s=20,m=(1.02+.072*s)*(1+.28*(c-1))*WB/(1+.12*(st.lv-1)),E=mkEn(provIds(i,3,a),m,c,s),B={t:'w',en:E.en,P:mkP(1,gar),rd:0,over:0,c:1,notes:[],dg:1,cdl:{}};B.auto=1;B.P.forEach(u=>{u.q=1;u.cdn=u.sk.cd+1});let g=0;while(!B.over&&g++<80)round(B,[]);
  if(B.en.every(e=>e.h<=0))mlog('🛡️ '+PRV[i].n+' đẩy lùi quân '+FN[a]+'!');else lose(i,a,'đồn trú bị đánh bại')}
 function aiEvent(){geo();const P=S.mp.p,own=f=>PRV.map((_,i)=>i).filter(i=>P[i].o==f),AI=[0,1,2].filter(f=>f!=S.f);
  if(Math.random()<.5){const f=AI[Math.random()*2|0],cand=own(f).length<6?PRV.map((_,i)=>i).filter(i=>P[i].o==-1&&PADJ[i].some(j=>P[j].o==f)):[];if(cand.length){const i=cand[Math.random()*cand.length|0];P[i].o=f;P[i].gar=[];P[i].cl=0;mlog(FN[f]+' chiếm '+PRV[i].n+'.')}return}
@@ -580,6 +580,7 @@ function round(B,ev){B.rd++;
   else if(b.t=='rally'&&(u.ry||0)<4){u.ry=(u.ry||0)+1;u.a*=1+b.v;ev.push({a:u.k,t:u.k,d:0,h:u.h,H:u.H,fx:'📯',hl:2})}}};
  for(const u of B.P){if(u.h<=0||!ue().length)continue;if(u.bn>0){u.bn--;hit({k:u.k},u,u.bd,'🔥');if(u.h<=0)continue}
   if(u.sn>0){u.sn--;ev.push({a:u.k,t:u.k,d:0,h:u.h,H:u.H,fx:'💫',miss:2});continue}
+  if(u.cdn>0)u.cdn--;if(B.auto&&u.sk&&u.cdn<=0&&!u.q){u.q=1;u.cdn=u.sk.cd+1}
   const tg=ue()[0];
   if(u.q){u.q=0;const s=u.sk,M=s.m*Math.min(1.5,u.int)*(1+T3().m);ev.push({c:1,a:u.k,i:u.i,n:s.n,fx:s.e,ty:s.t,tg:s.t=='heal'||s.t=='buff'?u.k:tg.k,dv:s.div,sx:s.sx});
    if(s.t=='dmg')hit(u,tg,u.a*M,s.e);
@@ -613,7 +614,7 @@ function round(B,ev){B.rd++;
  B.P.forEach(u=>{if(u.h>0&&u.r)u.h=Math.min(u.H,u.h+u.H*u.r)});B.en.forEach(e=>{if(e.h>0&&e.r)e.h=Math.min(e.H,e.h+e.H*e.r)});
  B.over=!up().length||!ue().length||B.rd>=60}
 function resolve(B){const t=B.t,c=S.ch,s=S.st;B.P.forEach(u=>{S.bc[u.i]=(S.bc[u.i]||0)+1});
- if(!B.en.every(e=>e.h<=0)){S.team.forEach(i=>S.hp[i]=1);S.cd={};S.st=1;gen();return{w:0,m:'Bại trận sau '+B.rd+' hiệp! Cả đội rút về ải 1 của màn, được hồi đầy máu và hồi chiêu.'}}
+ if(!B.en.every(e=>e.h<=0)){S.team.forEach(i=>S.hp[i]=1);S.st=1;gen();return{w:0,m:'Bại trận sau '+B.rd+' hiệp! Cả đội rút về ải 1 của màn, được hồi đầy máu và hồi chiêu.'}}
  B.P.forEach(u=>S.hp[u.i]=Math.max(.2,u.h/u.H));
  const g=Math.round(30*c*(1+s/5)*(t=='e'||t=='g'?2:t=='b'?5:1)*(1+T3().gold)*GM*MAPG);S.gold+=g;
  const xp=Math.round(15*(1+.8*(c-1))*(1+s/8)*(t=='b'?4:t=='e'||t=='g'?1.5:1));let r='Thắng sau '+B.rd+' hiệp, nhận '+g+' vàng. Mỗi tướng ra trận +'+xp+' EXP (tướng còn lại +'+(xp>>1)+').'+giveXp(xp);
@@ -622,7 +623,7 @@ function resolve(B){const t=B.t,c=S.ch,s=S.st;B.P.forEach(u=>{S.bc[u.i]=(S.bc[u.
   if(i>=0&&!(i in S.own)){const p=RC[TR(i)]*(F(i)==S.f?1:.6);if(Math.random()<p){S.own[i]=1+(c-1)*5;S.hp[i]=1;if(S.team.length<4)S.team.push(i);r+=' Thu phục thành công '+GN(i)+'!'}else r+=' '+GN(i)+' từ chối quy hàng.'}}
  r+=drop(t=='b'?.6:t=='g'?.3:t=='e'?.12:.03,t=='b'?3:t=='g'?1.5:0);return{w:1,m:r}}
 let CB=null;
-function cast(k){const u=CB.P.find(x=>x.k==k);if(!u||u.h<=0||u.q||((CB.dg?CB.cdl:S.cd)[u.i]||0)>0)return;u.q=1;(CB.dg?CB.cdl:S.cd)[u.i]=u.sk.cd+1;S.hint=1;const hh=$('#hnt');if(hh)hh.style.display='none';const b=$('#sb-'+k);if(b){b.disabled=true;b.querySelector('small').textContent='Đã chọn'}}
+function cast(k){const u=CB.P.find(x=>x.k==k);if(!u||u.h<=0||u.q||((u.cdn||0)>0))return;u.q=1;u.cdn=u.sk.cd+1;S.hint=1;const hh=$('#hnt');if(hh)hh.style.display='none';const b=$('#sb-'+k);if(b){b.disabled=true;b.querySelector('small').textContent='Đã chọn'}}
 const THM={'🐉':{k:'charge',s:'🐉',z:120,d:520,m:1},'🐲':{k:'charge',s:'🐲',z:100,d:520},'🐎':{k:'charge',s:'🐎',z:90,d:480},'🐅':{k:'charge',s:'🐅',z:90,d:480},'🏹':{k:'arrow',s:'🏹',d:420},'🎯':{k:'arrow',s:'🎯',d:420},'🔥':{k:'fire',s:'🔥',d:500},'🌊':{k:'wave',s:'🌊',d:500},'🌀':{k:'spin',s:'🌀',d:450},'⛓️':{k:'spin',s:'⛓️',d:450},'🪓':{k:'spin',s:'🪓',d:450},'🔔':{k:'spin',s:'🔔',d:450},'⚔️':{k:'spin',s:'⚔️',d:450},'🗡️':{k:'spin',s:'🗡️',d:450},'🌑':{k:'dark',s:'🌑',d:450},'☠️':{k:'dark',s:'☠️',d:450},'🩸':{k:'dark',s:'🩸',d:450},'📢':{k:'roar',s:'📢',d:350}};
 THM['👁️']={k:'dark',s:'👁️',d:450};THM['🔱']={k:'charge',s:'🔱',z:100,d:500};THM['😈']={k:'dark',s:'😈',d:450};THM['🏯']={k:'holy',s:'🏯',d:500};THM['🐯']={k:'charge',s:'🐯',z:95,d:480};
 ['👑','📖','💚','🛡️','🌸','🪵','📜'].forEach(x=>THM[x]={k:'holy',s:x,d:500});
@@ -653,7 +654,7 @@ function vfx0(R,e){const rb=R.getBoundingClientRect(),el=$('#u-'+e.tg);if(!el)re
 function arena(B,done){const A=$('#arena');CB=B;AR=1;B.sp=S.spd||1;B.auto=S.au||0;const bo=B.en[0].boss?B.en[0]:null;
  const hb=u=>'<div class="u h" id="u-'+u.k+'"><div class="nm">'+GN(u.i)+'</div>'+(PH[GN(u.i)]?'<div class="pb" style="background-image:url('+PH[GN(u.i)]+')"></div>':heroFig(u.i,104))+'<div class="bar"><i style="width:'+Math.round(u.h/u.H*100)+'%"></i></div></div>';
  const eb=u=>'<div class="u e'+(u.boss?' bo':'')+'" id="u-'+u.k+'">'+(u.boss&&PH[u.nm]?'<div class="pb" style="background-image:url('+PH[u.nm]+');width:'+u.sz*.8+'px;height:'+u.sz+'px"></div>':(!u.boss&&u.ph&&PH[u.ph]?'<div class="nm en">'+(u.lord?'👑 ':'')+u.ph+(u.id!=null?' ['+TR(u.id)+']':'')+'</div><div class="pb pe" style="background-image:url('+PH[u.ph]+')"></div>':fig(u.fg,u.boss?u.sz:84)))+'<div class="bar"><i style="width:100%"></i></div></div>';
- const sb=u=>{const r=(B.dg?B.cdl:S.cd)[u.i]||0;return '<button class="sb" id="sb-'+u.k+'" '+(r>0?'disabled':'')+' onclick="cast(\''+u.k+'\')">'+av(u.i,34)+'<span>'+u.sk.e+' '+sn(u.sk)+'<br><small>'+(r>0?'Hồi '+r+' ải':'Sẵn sàng')+'</small></span></button>'};
+ const sb=u=>{const r=(u.cdn||0);return '<button class="sb" id="sb-'+u.k+'" '+(r>0?'disabled':'')+' onclick="cast(\''+u.k+'\')">'+av(u.i,34)+'<span>'+u.sk.e+' '+sn(u.sk)+'<br><small>'+(r>0?'Hồi '+r+' hiệp':'Sẵn sàng')+'</small></span></button>'};
  A.innerHTML='<div class="ar"><div id="cut"></div>'+(bo?'<div class="bh"><b>'+bo.nm+'</b><div class="bar"><i id="bhi" style="width:100%"></i></div></div>':'')+(B.notes&&B.notes.length?'<div class="hint en2">⚠️ Địch kích duyên: '+B.notes.join(' · ')+'</div>':'')+'<div class="scene" style="background:url('+BGI[(B.c-1)%2]+') center/cover"><div class="tint" style="background:'+SKY[B.c-1]+'"></div><div class="sun"></div><div class="mt"></div><div class="gnd"></div><div class="side L">'+B.P.map(hb).join('')+'</div><div class="side R">'+B.en.map(eb).join('')+'</div></div><div class="ctl"><span id="rd">Chuẩn bị</span><span><button class="g sm" id="sp">x'+B.sp+'</button> <button class="g sm" id="au">Tự động: '+(B.auto?'bật':'tắt')+'</button> <button class="g sm" id="skp">Bỏ qua</button></span></div>'+(S.hint?'':'<div class="hint" id="hnt">👇 Bấm vào tên chiêu bên dưới để dùng kỹ năng mạnh · x2 = tăng tốc · Tự động = máy tự dùng chiêu</div>')+'<div class="sbs">'+B.P.map(sb).join('')+'</div></div>';A.style.display='flex';
  const R=A.firstChild,D=ms=>ms/B.sp;let tm,fin=0;const end=()=>{if(fin)return;fin=1;clearTimeout(tm);A.style.display='none';AR=0;done()};
  $('#skp').onclick=()=>{while(!B.over)round(B,[]);end()};
@@ -681,10 +682,10 @@ function arena(B,done){const A=$('#arena');CB=B;AR=1;B.sp=S.spd||1;B.auto=S.au||
    add('dm'+(e.hl?' hl':'')+(e.cr?' cr':''),e.miss?(e.miss==2?'Choáng':'Né'):e.hl?(e.hl==2?'⬆':e.hl==3?'🔥':'💚'):'-'+e.d+(e.cr?'!':''))}
   tm=setTimeout(step,D(240))})()};
  const next=()=>{if(B.over){tm=setTimeout(end,D(500));return}
-  if(B.auto)B.P.forEach(u=>{if(u.h>0&&!u.q&&!(((B.dg?B.cdl:S.cd)[u.i]||0)>0))cast(u.k)});
-  const r=$('#rd');if(r)r.textContent='Hiệp '+(B.rd+1);const ev=[];round(B,ev);play(ev)};
+  if(B.auto)B.P.forEach(u=>{if(u.h>0&&!u.q&&!((u.cdn||0)>0))cast(u.k)});
+  const r=$('#rd');if(r)r.textContent='Hiệp '+(B.rd+1);const ev=[];round(B,ev);B.P.forEach(u=>{const b=$('#sb-'+u.k);if(b){const rr=u.cdn||0;b.disabled=rr>0||!!u.q||u.h<=0;const sm=b.querySelector('small');if(sm)sm.textContent=u.q?'Đã chọn':(rr>0?'Hồi '+rr+' hiệp':'Sẵn sàng')}});play(ev)};
  if(bo){cut((PH[bo.nm]?'<i class="ph" style="width:70px;height:88px;display:block;background-image:url('+PH[bo.nm]+')"></i>':fig(bo.fg,100))+'<div><b style="color:#ff8a7a">'+bo.nm+'</b><br><small>xuất hiện!</small></div>');tm=setTimeout(next,D(1500))}else next()}
-function adv(){S.tot++;for(const k in S.cd)S.cd[k]=Math.max(0,S.cd[k]-1);
+function adv(){S.tot++;
  if(S.st>=30){const c=S.ch;if(c==CH.length){S.msg+=' 🎉 Bạn đã thống nhất thiên hạ! Có thể chơi lại các màn để cày thêm.';S.st=1}
   else{S.max=Math.max(S.max,c+1);S.ch=c+1;S.st=1;S.msg+=' Hoàn thành màn '+c+', mở màn '+(c+1)+'.'}}
  else S.st++;gen()}
@@ -753,8 +754,8 @@ function draw(){const A=$('#app');if(S&&!S.mp){S.res.wd=S.res.wd||0;S.res.gr=S.r
  if(V=='m'){b=mapTab()}
  if(V=='m0'){const C=CH[S.ch-1],s=S.st,bi=s==10?0:s==20?1:2;
   b='<div class="card"><h3>Màn '+S.ch+': '+C[0]+'</h3><small>Ải '+s+' / 30</small>'+bar(s/30)+(s==1?'<p>'+C[3]+f.r+' xuất quân.</p>':'')
-  +(S.msg?'<p><b>'+S.msg+'</b></p>':'')+'</div><div class="card"><b>Đội hình</b><br><small>Trong trận, bấm nút chiêu để thi triển. Hồi chiêu tính theo ải.</small>'
-  +S.team.map(i=>{const k=skill(i),r=S.cd[i]||0;return '<div class="ci">'+av(i,60)+'<div style="flex:1"><b>'+GN(i)+'</b> <small>Lv'+S.own[i]+' · '+k.e+' '+k.n+': '+(r>0?'hồi '+r+' ải':'sẵn sàng')+'</small>'+bar(S.hp[i])+'</div></div>'}).join('')+'</div>'
+  +(S.msg?'<p><b>'+S.msg+'</b></p>':'')+'</div><div class="card"><b>Đội hình</b><br><small>Trong trận, bấm nút chiêu để thi triển. Hồi chiêu tính theo hiệp trong trận.</small>'
+  +S.team.map(i=>{const k=skill(i);return '<div class="ci">'+av(i,60)+'<div style="flex:1"><b>'+GN(i)+'</b> <small>Lv'+S.own[i]+' · '+k.e+' '+k.n+': hồi '+k.cd+' hiệp</small>'+bar(S.hp[i])+'</div></div>'}).join('')+'</div>'
   +bondCard()+autoCard()+'<h3>Chọn hướng đi</h3>'+S.opts.map(t=>'<div class="card"><b>'+LB[t][0]+'</b><br><small>'+LB[t][1]+(t=='b'?' Kẻ địch: '+BO[S.ch-1][bi].n+' (nhiều chiêu mạnh).':t=='n'?' Rớt đồ 6%.':t=='e'?' Rớt đồ 25%.':t=='g'?' Rớt 1–3 đá, đồ 60%.':'')+'</small>'
    +(t=='e'?(S.cand>=0?'<div class="ci">'+av(S.cand,64)+'<div>Mục tiêu: <b>'+GN(S.cand)+'</b> (hạng '+TR(S.cand)+', '+FA[F(S.cand)].n+')<br>Tỷ lệ thu phục khi thắng: <b>'+Math.round(RC[TR(S.cand)]*(F(S.cand)==S.f?1:.6)*100)+'%</b></div></div>':'<br><small>Không còn tướng nào để thu phục.</small>'):'')
    +'<br><button onclick="pick(\''+t+'\')">Chọn</button></div>').join('')}
@@ -764,7 +765,7 @@ function draw(){const A=$('#app');if(S&&!S.mp){S.res.wd=S.res.wd||0;S.res.gr=S.r
   +suggCard()+Object.keys(JB).map(k=>'<div class="card"><b>'+JB[k][0]+'</b> <small>('+S.jobs[k].length+'/3) '+JB[k][1]+'</small>'+S.jobs[k].map(i=>'<div class="ci">'+av(i,40)+'<div style="flex:1"><b>'+GN(i)+'</b> <small>'+jinfo(i,k)+'</small>'+bar((S.jp[i]||0)/(k=='train'?XN(S.own[i]):100))+'</div><button class="sm g" onclick="assign('+i+',\'\')">✕</button></div>').join('')+'</div>').join('')
   +'<b>Tướng rảnh</b>'+ctl('n')+list('n',idle,i=>'<div><small>💡 Hợp nhất: '+hint(i)+'</small><br>'+Object.keys(JB).map(k=>'<button class="sm" '+(S.jobs[k].length>=3?'disabled':'')+' onclick="assign('+i+',\''+k+'\')">'+JB[k][0]+'</button>').join('')+'</div>')}
  if(V=='d'){tix();const R=S.res;
-  b='<div class="card"><b>Hầm ngục</b><br><small>Mỗi lượt vào tốn 1 vé (tối đa 6, hồi 1 vé mỗi 150 giây). Rớt tài nguyên để rèn thần khí cho tướng S. Chiêu trong hầm ngục không bị tính hồi chiêu theo ải.</small><br>🎫 Vé: <b>'+S.tk+'/6</b>'+(S.tk<6?' · vé kế tiếp sau '+Math.max(1,Math.ceil((150000-(Date.now()-S.tt))/1000))+'s':'')+'<br>🔩 '+R.fe+' · 🟢 '+R.jd+' · 🦴 '+R.bn+' · ☄️ '+R.st+' · ✨ '+(R.dv||0)+(S.dm?'<br><small>'+S.dm+'</small>':'')+'</div>'
+  b='<div class="card"><b>Hầm ngục</b><br><small>Mỗi lượt vào tốn 1 vé (tối đa 6, hồi 1 vé mỗi 150 giây). Rớt tài nguyên để rèn thần khí cho tướng S. Chiêu trong hầm ngục hồi theo hiệp trong trận như mọi trận khác.</small><br>🎫 Vé: <b>'+S.tk+'/6</b>'+(S.tk<6?' · vé kế tiếp sau '+Math.max(1,Math.ceil((150000-(Date.now()-S.tt))/1000))+'s':'')+'<br>🔩 '+R.fe+' · 🟢 '+R.jd+' · 🦴 '+R.bn+' · ☄️ '+R.st+' · ✨ '+(R.dv||0)+(S.dm?'<br><small>'+S.dm+'</small>':'')+'</div>'
   +DGN.map((d,k)=>{const lock=(k==3&&S.max<3)||(k==4&&!hasL()),f=S.fl[k]||1;return '<div class="card"><b>'+d[0]+'</b> <small>Rớt '+d[3]+' '+d[2]+'. Tầng cao nhất: '+f+(f%5==0?' (tinh anh)':'')+'</small><br>'+(lock?'<small>🔒 '+(k==4?'Mở khi có tướng đạt Lv100':'Mở khi đến màn 3')+'</small>':'<button '+(S.tk<1?'disabled':'')+' onclick="runDg('+k+','+f+')">Vào tầng '+f+'</button>'+(f>1?'<button class="g" '+(S.tk<1?'disabled':'')+' onclick="runDg('+k+','+(f-1)+')">Cày tầng '+(f-1)+'</button>':''))+'</div>'}).join('')
   +'<div class="card"><b>⚒️ Lò rèn</b><br><small>8 🔩 + 4 🟢 → 1 món đồ phẩm chất cao hơn bình thường.</small><br><button '+(R.fe<8||R.jd<4?'disabled':'')+' onclick="forgeI()">Rèn đồ</button></div>'
   +'<div class="card"><b>✨ Thần khí tướng S</b><br><small>Mỗi tướng S có 3 món riêng (vũ khí, giáp, thú cưỡi). Đủ bộ thì hóa Thần tướng SR. Chạm tướng để rèn.</small>'+(own().filter(i=>TR(i)=='S'&&DV[GN(i)]).map(i=>'<div class="ci" onclick="openG('+i+')">'+av(i,44)+'<div><b>'+GN(i)+'</b> <small>'+(S.dv[i]||[0,0,0]).reduce((a,b)=>a+b,0)+'/3 món</small></div></div>').join('')||'<br><small>Chưa có tướng S nào có thần khí.</small>')+'</div>'}
